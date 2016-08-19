@@ -1,0 +1,3 @@
+include README.rst
+include tox.ini
+include test_progress_report.py
