@@ -28,7 +28,7 @@ setup(name='pytest-progress',
       install_requires=['pytest>=2.7'],
       keywords='py.test pytest report',
       classifiers=[
-          'Development Status :: 4 - Beta',
+          'Development Status :: 5 - Production/Stable',
           'Framework :: Pytest',
           'Intended Audience :: Developers',
           'Operating System :: POSIX',
