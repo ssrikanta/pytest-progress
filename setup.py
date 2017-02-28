@@ -1,4 +1,5 @@
 import os
+import io
 
 from setuptools import setup
 
@@ -19,7 +20,7 @@ def get_version(filename):
 setup(name='pytest-progress',
       version=get_version('version.txt'),
       description='pytest plugin for instant test progress status',
-      long_description=unicode(open('README.rst').read(), errors='ignore'),
+      long_description=io.open('README.rst', encoding='utf-8', errors='ignore').read(),
       author='santosh',
       author_email=u'santosh.srikanta@gmail.com',
       url=u'https://github.com/ssrikanta/pytest-progress',
