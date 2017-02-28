@@ -5,3 +5,7 @@ Release Notes
 
 * Intitial Plugin Release
 
+
+**1.0.1 (2017-02-28)**
+
+* Fix for test count with marjer and -k Option

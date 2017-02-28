@@ -2,13 +2,17 @@
 import pytest
 from _pytest.terminal import TerminalReporter
 
+total_tests = None
 
 def pytest_collection_modifyitems(session, config, items):
-    terminal_reporter = config.pluginmanager.getplugin('terminalreporter')
+    global total_tests
+    total_tests = len(items)
+
+def pytest_collection_finish(session):
+    terminal_reporter = session.config.pluginmanager.getplugin('terminalreporter')
     if terminal_reporter:
-        terminal_reporter.tests_count = len(items)
-
-
+        terminal_reporter.tests_count = len(session.items)
+        terminal_reporter.total_tests = total_tests
 try:
     import xdist
 except ImportError:
@@ -60,6 +64,7 @@ class ProgressTerminalReporter(TerminalReporter):
         self.xpass_count = 0
         self.xfail_count = 0
         self.error_count = 0
+        self.total_tests = 0
 
 
     def append_pass(self):
@@ -114,9 +119,9 @@ class ProgressTerminalReporter(TerminalReporter):
 
         if report.when in ("teardown"):
             status = (self.tests_taken, self.tests_count, self.pass_count, self.fail_count,
-                      self.skip_count, self.xpass_count, self.xfail_count, self.error_count)
+                      self.skip_count, self.xpass_count, self.xfail_count, self.error_count, self.total_tests)
 
-            msg = "%d of %d completed, %d Pass, %d Fail, %d Skip, %d XPass, %d XFail, %d Error" % (status)
+            msg = "%d of %d completed, %d Pass, %d Fail, %d Skip, %d XPass, %d XFail, %d Error, %d Total" % (status)
             self.write_sep("_", msg)
 
 
