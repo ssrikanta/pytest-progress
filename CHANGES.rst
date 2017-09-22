@@ -14,3 +14,7 @@ Release Notes
 **1.0.2 (2017-02-28)**
 
 * Fix for test count with xdist plugin
+
+**1.1.0 (2017-09-22)**
+
+* Add support for pytest-rerunfailure plugin

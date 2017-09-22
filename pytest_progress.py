@@ -59,6 +59,11 @@ class ProgressTerminalReporter(TerminalReporter):
         self.xpass_count = 0
         self.xfail_count = 0
         self.error_count = 0
+        self.rerun_count = 0
+
+
+    def append_rerun(self):
+        self.rerun_count = self.rerun_count + 1
 
 
     def append_pass(self):
@@ -94,12 +99,17 @@ class ProgressTerminalReporter(TerminalReporter):
             self.tests_taken = self.tests_taken + 1
 
 
+
     def pytest_report_teststatus(self, report):
         """ Called after every test for test case status"""
-
         if report.passed:
             if report.when == "call":  # ignore setup/teardown
                 self.append_pass()
+
+
+        elif report.rerun:
+            if report.when == "call":  # ignore setup/teardown
+                self.append_rerun()
 
         elif report.failed:
             if report.when == "call":
@@ -113,9 +123,9 @@ class ProgressTerminalReporter(TerminalReporter):
 
         if report.when in ("teardown"):
             status = (self.tests_taken, self.tests_count, self.pass_count, self.fail_count,
-                      self.skip_count, self.xpass_count, self.xfail_count, self.error_count)
+                      self.skip_count, self.xpass_count, self.xfail_count, self.error_count, self.rerun_count)
 
-            msg = "%d of %d completed, %d Pass, %d Fail, %d Skip, %d XPass, %d XFail, %d Error" % (status)
+            msg = "%d of %d completed, %d Pass, %d Fail, %d Skip, %d XPass, %d XFail, %d Error, %d ReRun" % (status)
             self.write_sep("_", msg)
 
 
