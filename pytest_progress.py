@@ -102,13 +102,11 @@ class ProgressTerminalReporter(TerminalReporter):
 
     def pytest_report_teststatus(self, report):
         """ Called after every test for test case status"""
-        if report.passed:
-            if report.when == "call":  # ignore setup/teardown
-                self.append_pass()
+        if report.passed and report.when == "call":
+            self.append_pass()
 
-
-        elif report.rerun:
-            if report.when == "call":  # ignore setup/teardown
+        elif hasattr(report, 'rerun'):
+            if report.when == "call" and report.rerun:  # ignore setup/teardown
                 self.append_rerun()
 
         elif report.failed:
