@@ -109,7 +109,7 @@ class ProgressTerminalReporter(TerminalReporter):
             if report.when == "call" and report.rerun:  # ignore setup/teardown
                 self.append_rerun()
 
-        elif report.failed :
+        elif report.failed:
             if report.when == "call":
                 self.append_failure(report)
 
