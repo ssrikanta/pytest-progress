@@ -22,3 +22,8 @@ Release Notes
 **1.1.2 (2017-09-22)**
 
 * Fixes issue with pytest-rerunfailure plugin
+
+**1.2.0 (2017-10-09)**
+
+* Fixes for typo error in project name
+* Show failure details for rerun cases as well
