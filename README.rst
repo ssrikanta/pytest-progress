@@ -1,4 +1,4 @@
-pytest-excel
+pytest-progress
 ================
 
 
@@ -22,11 +22,11 @@ Installation
 
 To install pytest-progress::
 
-    $ pip install pytest-progress
+    $Â pip install pytest-progress
 
 Then run your tests with::
 
-    $ py.test --show-progress
+    $Â py.test --show-progress
 
 If you would like more detailed output (one test per line), then you may use the verbose option::
 
