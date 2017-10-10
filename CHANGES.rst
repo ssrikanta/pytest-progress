@@ -27,3 +27,8 @@ Release Notes
 
 * Fixes for typo error in project name
 * Show failure details for rerun cases as well
+
+
+**1.2.1 (2017-10-10)**
+
+* Fixes issues with count mismatch with rerun plugin
