@@ -62,24 +62,46 @@ class ProgressTerminalReporter(TerminalReporter):
         self.rerun_count = 0
 
 
-    def append_rerun(self):
-        self.rerun_count = self.rerun_count + 1
+    def append_rerun(self, report):
+
+        if report.failed:
+            self.append_failure(report)
+
+        if report.when == "call" and report.rerun:  # ignore setup/teardown
+            self.rerun_count = self.rerun_count + 1
+
+        elif report.skipped:
+            self.append_skipped(report)
 
 
-    def append_pass(self):
-        self.pass_count = self.pass_count + 1
-        self.tests_taken = self.tests_taken + 1
-
-
-    def append_failure(self, report):
+    def append_pass(self, report):
 
         if hasattr(report, "wasxfail"):
             self.xpass_count = self.xpass_count + 1
             self.tests_taken = self.tests_taken + 1
 
         else:
-            self.fail_count = self.fail_count + 1
+            self.pass_count = self.pass_count + 1
             self.tests_taken = self.tests_taken + 1
+
+        if hasattr(report, 'rerun'):
+            if  report.rerun:
+                self.rerun_count = self.rerun_count + 1
+
+
+    def append_failure(self, report):
+
+        if report.when == "call":
+            if hasattr(report, "wasxfail"):
+                self.xpass_count = self.xpass_count + 1
+                self.tests_taken = self.tests_taken + 1
+
+            else:
+                self.fail_count = self.fail_count + 1
+                self.tests_taken = self.tests_taken + 1
+
+        else:
+            self.append_error()
 
 
     def append_error(self):
@@ -103,18 +125,13 @@ class ProgressTerminalReporter(TerminalReporter):
     def pytest_report_teststatus(self, report):
         """ Called after every test for test case status"""
         if report.passed and report.when == "call":
-            self.append_pass()
+            self.append_pass(report)
 
         elif hasattr(report, 'rerun'):
-            if report.when == "call" and report.rerun:  # ignore setup/teardown
-                self.append_rerun()
+            self.append_rerun(report)
 
         elif report.failed:
-            if report.when == "call":
-                self.append_failure(report)
-
-            else:
-                self.append_error()
+            self.append_failure(report)
 
         elif report.skipped:
             self.append_skipped(report)

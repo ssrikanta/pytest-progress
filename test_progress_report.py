@@ -1,15 +1,15 @@
 
 import pytest
-
+import random
 
 class Test_Progress_Report(object):
-  
-    
+
+
   def test_progress_report_01(self):
     assert True
-    
-  
-  @pytest.mark.xfail(reason="passed Simply")  
+
+
+  @pytest.mark.xfail(reason="passed Simply")
   def test_progress_report_02(self):
     assert True
 
@@ -25,6 +25,9 @@ class Test_Progress_Report(object):
 
 
   def test_progress_report_05(self):
-    assert True is False
+    assert False
 
+
+  def test_progress_report_06(self):
+    assert random.choice([True, False])
 
