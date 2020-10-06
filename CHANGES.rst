@@ -32,3 +32,7 @@ Release Notes
 **1.2.1 (2017-10-10)**
 
 * Fixes issues with count mismatch with rerun plugin
+
+**1.2.2 (2020-10-06)**
+
+* Fixes License information
