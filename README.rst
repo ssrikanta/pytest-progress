@@ -32,3 +32,15 @@ If you would like more detailed output (one test per line), then you may use the
 
     $ py.test --verbose
 
+
+Examples
+------------
+To run the pytest with progress::
+
+	$ py.test --show-progress test_progress_report.py
+	$ py.test --showprogress test_progress_report.py
+	
+To run tests in verbose mode::
+
+	$ py.test --show-progress --verbose test_progress_report.py
+	$ py.test --showprogress --verbose test_progress_report.py

@@ -60,6 +60,7 @@ class ProgressTerminalReporter(TerminalReporter):
         self.xfail_count = 0
         self.error_count = 0
         self.rerun_count = 0
+        self.executed_nodes = []
 
 
     def append_rerun(self, report):
@@ -124,17 +125,26 @@ class ProgressTerminalReporter(TerminalReporter):
 
     def pytest_report_teststatus(self, report):
         """ Called after every test for test case status"""
+
         if report.passed and report.when == "call":
-            self.append_pass(report)
+            if report.nodeid not in self.executed_nodes:
+                self.append_pass(report)
+                self.executed_nodes.append(report.nodeid)
 
         elif hasattr(report, 'rerun'):
-            self.append_rerun(report)
+            if report.nodeid not in self.executed_nodes:
+                self.append_rerun(report)
+                self.executed_nodes.append(report.nodeid)
 
         elif report.failed:
-            self.append_failure(report)
+            if report.nodeid not in self.executed_nodes:
+                self.append_failure(report)
+                self.executed_nodes.append(report.nodeid)
 
         elif report.skipped:
-            self.append_skipped(report)
+            if report.nodeid not in self.executed_nodes:
+                self.append_skipped(report)
+                self.executed_nodes.append(report.nodeid)
 
         if report.when in ("teardown"):
             status = (self.tests_taken, self.tests_count, self.pass_count, self.fail_count,

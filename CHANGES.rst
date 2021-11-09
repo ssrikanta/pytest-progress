@@ -36,3 +36,7 @@ Release Notes
 **1.2.2 (2020-10-06)**
 
 * Fixes License information
+
+**1.2.3 (2021-11-09)**
+
+* Fixes issues while running along with json report plugin
