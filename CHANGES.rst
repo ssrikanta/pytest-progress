@@ -40,3 +40,7 @@ Release Notes
 **1.2.3 (2021-11-09)**
 
 * Fixes issues while running along with json report plugin
+
+**1.2.4 (2021-11-09)**
+
+* Fixes in running pytest
