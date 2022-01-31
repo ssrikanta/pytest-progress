@@ -44,3 +44,7 @@ Release Notes
 **1.2.4 (2021-11-09)**
 
 * Fixes in running pytest
+
+**1.2.5 (2022-01-31)**
+
+* Fixes in running tests with rerun and json report plugin
