@@ -61,15 +61,22 @@ class ProgressTerminalReporter(TerminalReporter):
         self.error_count = 0
         self.rerun_count = 0
         self.executed_nodes = []
+        self.passed_nodes = []
+        self.failed_nodes = []
+        self.rerun_nodes = []
 
 
     def append_rerun(self, report):
 
         if report.failed:
-            self.append_failure(report)
+            if report.nodeid not in self.executed_nodes:
+                self.append_failure(report)
 
         if report.when == "call" and report.rerun:  # ignore setup/teardown
-            self.rerun_count = self.rerun_count + 1
+            if report.nodeid not in self.rerun_nodes:
+                self.rerun_count = self.rerun_count + 1
+                self.rerun_nodes.append(report.nodeid)
+
 
         elif report.skipped:
             self.append_skipped(report)
@@ -82,8 +89,15 @@ class ProgressTerminalReporter(TerminalReporter):
             self.tests_taken = self.tests_taken + 1
 
         else:
-            self.pass_count = self.pass_count + 1
-            self.tests_taken = self.tests_taken + 1
+            if report.nodeid not in self.passed_nodes:
+                if report.nodeid in self.failed_nodes:
+                    self.failed_nodes.remove(report.nodeid)
+                else:
+                    self.tests_taken = self.tests_taken + 1
+
+                self.pass_count = self.pass_count + 1
+                self.passed_nodes.append(report.nodeid)
+
 
         if hasattr(report, 'rerun'):
             if  report.rerun:
@@ -98,8 +112,14 @@ class ProgressTerminalReporter(TerminalReporter):
                 self.tests_taken = self.tests_taken + 1
 
             else:
+                if report.nodeid not in self.failed_nodes:
+                    if report.nodeid in self.passed_nodes:
+                        self.passed_nodes.remove(report.nodeid)
+                    else:
+                        self.tests_taken = self.tests_taken + 1
+
                 self.fail_count = self.fail_count + 1
-                self.tests_taken = self.tests_taken + 1
+                self.failed_nodes.append(report.nodeid)
 
         else:
             self.append_error()
@@ -114,27 +134,31 @@ class ProgressTerminalReporter(TerminalReporter):
     def append_skipped(self, report):
 
         if hasattr(report, "wasxfail"):
-            self.xfail_count = self.xfail_count + 1
-            self.tests_taken = self.tests_taken + 1
+            if report.nodeid not in self.executed_nodes:
+                self.xfail_count = self.xfail_count + 1
+                self.tests_taken = self.tests_taken + 1
+                self.executed_nodes.append(report.nodeid)
 
         else:
-            self.skip_count = self.skip_count + 1
-            self.tests_taken = self.tests_taken + 1
+            if report.nodeid not in self.executed_nodes:
+                self.skip_count = self.skip_count + 1
+                self.tests_taken = self.tests_taken + 1
+                self.executed_nodes.append(report.nodeid)
 
 
-
+    @pytest.hookimpl(tryfirst=True)
     def pytest_report_teststatus(self, report):
         """ Called after every test for test case status"""
 
         if report.passed and report.when == "call":
             if report.nodeid not in self.executed_nodes:
+
                 self.append_pass(report)
                 self.executed_nodes.append(report.nodeid)
 
         elif hasattr(report, 'rerun'):
-            if report.nodeid not in self.executed_nodes:
-                self.append_rerun(report)
-                self.executed_nodes.append(report.nodeid)
+            self.append_rerun(report)
+
 
         elif report.failed:
             if report.nodeid not in self.executed_nodes:
