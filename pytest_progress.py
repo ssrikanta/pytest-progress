@@ -122,14 +122,13 @@ class ProgressTerminalReporter(TerminalReporter):
                 self.failed_nodes.append(report.nodeid)
 
         else:
-            self.append_error(rerun)
+            self.append_error()
 
 
-    def append_error(self, rerun=False):
+    def append_error(self):
 
         self.error_count = self.error_count + 1
-        if not rerun:
-            self.tests_taken = self.tests_taken + 1
+        self.tests_taken = self.tests_taken + 1
 
 
     def append_skipped(self, report):
