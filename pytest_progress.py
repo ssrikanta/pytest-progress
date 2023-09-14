@@ -30,6 +30,12 @@ def pytest_addoption(parser):
                     default=0,
                     dest="progress",
                     help="Prints test progress on the terminal.")
+    
+    group.addoption('--skip-summary',
+                    action="store_false",
+                    default=True,
+                    dest="display_summary",
+                    help="Skip summary of failures and errors")
 
 
 
@@ -197,16 +203,12 @@ class ProgressTerminalReporter(TerminalReporter):
 
 
     def summary_failures(self):
-        # Prevent failure summary from being shown since we already
-        # show the failure instantly after failure has occured.
-        pass
-
+        if self.config.option.display_summary:
+            super().summary_failures()
 
     def summary_errors(self):
-        # Prevent error summary from being shown since we already
-        # show the error instantly after error has occured.
-        pass
-
+        if self.config.option.display_summary:
+            super().summary_errors()
 
     def print_failure(self, report):
         if self.config.option.tbstyle != "no":
