@@ -48,3 +48,8 @@ Release Notes
 **1.2.5 (2022-01-31)**
 
 * Fixes in running tests with rerun and json report plugin
+
+
+**1.3.0 (2024-06-18)**
+
+* Fixes depricated warnings

@@ -12,8 +12,8 @@ Requirements
 
 You will need the following prerequisites in order to use pytest-progress:
 
-- Python 2.7, 3.4 or 3.5
-- pytest 2.9.0 or newer
+- Python 3.8, 3.9, 3.10, 3.11 and 3.12
+- pytest
 
 
 
@@ -22,11 +22,11 @@ Installation
 
 To install pytest-progress::
 
-    $ pip install pytest-progress
+    $ pip install pytest-progress
 
 Then run your tests with::
 
-    $ py.test --show-progress
+    $ py.test --show-progress
 
 If you would like more detailed output (one test per line), then you may use the verbose option::
 

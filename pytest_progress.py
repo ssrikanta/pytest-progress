@@ -30,7 +30,7 @@ def pytest_addoption(parser):
                     default=0,
                     dest="progress",
                     help="Prints test progress on the terminal.")
-    
+
     group.addoption('--skip-summary',
                     action="store_false",
                     default=True,
@@ -152,7 +152,7 @@ class ProgressTerminalReporter(TerminalReporter):
                 self.executed_nodes.append(report.nodeid)
 
 
-    @pytest.hookimpl(tryfirst=True)
+    @pytest.mark.tryfirst
     def pytest_report_teststatus(self, report):
         """ Called after every test for test case status"""
 
@@ -206,9 +206,11 @@ class ProgressTerminalReporter(TerminalReporter):
         if self.config.option.display_summary:
             super().summary_failures()
 
+
     def summary_errors(self):
         if self.config.option.display_summary:
             super().summary_errors()
+
 
     def print_failure(self, report):
         if self.config.option.tbstyle != "no":
