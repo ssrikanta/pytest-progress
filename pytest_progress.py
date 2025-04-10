@@ -39,7 +39,7 @@ def pytest_addoption(parser):
 
 
 
-@pytest.mark.trylast
+@pytest.hookimpl(trylast=True)
 def pytest_configure(config):
     progress = config.option.progress
 
@@ -152,7 +152,7 @@ class ProgressTerminalReporter(TerminalReporter):
                 self.executed_nodes.append(report.nodeid)
 
 
-    @pytest.mark.tryfirst
+    @pytest.hookimpl(tryfirst=True)
     def pytest_report_teststatus(self, report):
         """ Called after every test for test case status"""
 
