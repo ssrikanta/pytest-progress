@@ -13,13 +13,10 @@ try:
 except ImportError:
     pass
 else:
-    from distutils.version import LooseVersion
-    xdist_version = LooseVersion(xdist.__version__)
-    if xdist_version >= LooseVersion("1.14"):
-        def pytest_xdist_node_collection_finished(node, ids):
-            terminal_reporter = node.config.pluginmanager.getplugin('terminalreporter')
-            if terminal_reporter:
-                terminal_reporter.tests_count = len(ids)
+    def pytest_xdist_node_collection_finished(node, ids):
+        terminal_reporter = node.config.pluginmanager.getplugin('terminalreporter')
+        if terminal_reporter:
+            terminal_reporter.tests_count = len(ids)
 
 
 
