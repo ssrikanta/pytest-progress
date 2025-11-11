@@ -53,3 +53,9 @@ Release Notes
 **1.3.0 (2024-06-18)**
 
 * Fixes depricated warnings
+
+
+**1.4.0 (2024-06-18)**
+
+* Fixes pytest marker for deprecated warnings
+* Changes for pyproject.toml file
