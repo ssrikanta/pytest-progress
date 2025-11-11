@@ -5,12 +5,11 @@ from setuptools import setup
 
 
 def get_version(filename):
-
+    """Get version from version file."""
     here = os.path.dirname(os.path.abspath(__file__))
-    f = open(os.path.join(here, filename))
-    version_match = f.read()
-    f.close()
-
+    with open(os.path.join(here, filename), 'r', encoding='utf-8') as f:
+        version_match = f.read().strip()
+    
     if version_match:
         return version_match
     raise RuntimeError("Unable to find version string.")
@@ -20,15 +19,16 @@ def get_version(filename):
 setup(name='pytest-progress',
       version=get_version('version.txt'),
       description='pytest plugin for instant test progress status',
-      long_description=io.open('README.rst', encoding='utf-8', errors='ignore').read(),
+      long_description=io.open('README.rst', encoding='utf-8').read(),
       author='santosh',
       author_email=u'santosh.srikanta@gmail.com',
       url=u'https://github.com/ssrikanta/pytest-progress',
-      license = 'MIT',
-      license_file = 'LICENSE',
-      py_modules=['pytest_progress'],
+      license='MIT',
+      license_files=['LICENSE'],
+      packages=['pytest_progress'],
       entry_points={'pytest11': ['progress = pytest_progress']},
       install_requires=['pytest>=2.7'],
+      python_requires='>=3.8',
       keywords='py.test pytest report',
       classifiers=[
           'Development Status :: 5 - Production/Stable',

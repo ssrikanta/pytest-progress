@@ -1,0 +1,185 @@
+import pytest
+from _pytest.terminal import TerminalReporter
+
+
+def pytest_collection_finish(session):
+    terminal_reporter = session.config.pluginmanager.getplugin('terminalreporter')
+    if terminal_reporter:
+        terminal_reporter.tests_count = len(session.items)
+
+try:
+    import xdist
+except ImportError:
+    pass
+else:
+    def pytest_xdist_node_collection_finished(node, ids):
+        terminal_reporter = node.config.pluginmanager.getplugin('terminalreporter')
+        if terminal_reporter:
+            terminal_reporter.tests_count = len(ids)
+
+
+def pytest_addoption(parser):
+    group = parser.getgroup("terminal reporting")
+    group.addoption('--showprogress', '--show-progress',
+                    action="count",
+                    default=0,
+                    dest="progress",
+                    help="Prints test progress on the terminal.")
+
+    group.addoption('--skip-summary',
+                    action="store_false",
+                    default=True,
+                    dest="display_summary",
+                    help="Skip summary of failures and errors")
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_configure(config):
+    progress = config.option.progress
+
+    if progress and not getattr(config, 'slaveinput', None):
+        standard_reporter = config.pluginmanager.getplugin('terminalreporter')
+        instaprogress_reporter = ProgressTerminalReporter(standard_reporter)
+
+        config.pluginmanager.unregister(standard_reporter)
+        config.pluginmanager.register(instaprogress_reporter, 'terminalreporter')
+
+
+class ProgressTerminalReporter(TerminalReporter):
+
+    def __init__(self, reporter):
+        TerminalReporter.__init__(self, reporter.config)
+        self._tw = reporter._tw
+        self.tests_count = 0
+        self.tests_taken = 0
+        self.pass_count = 0
+        self.fail_count = 0
+        self.skip_count = 0
+        self.xpass_count = 0
+        self.xfail_count = 0
+        self.error_count = 0
+        self.rerun_count = 0
+        self.executed_nodes = []
+        self.passed_nodes = []
+        self.failed_nodes = []
+        self.rerun_nodes = []
+
+    def append_rerun(self, report):
+        if report.failed:
+            if report.nodeid not in self.executed_nodes:
+                self.append_failure(report)
+        if report.when == "call" and report.rerun:
+            if report.nodeid not in self.rerun_nodes:
+                self.rerun_count = self.rerun_count + 1
+                self.rerun_nodes.append(report.nodeid)
+        elif report.skipped:
+            self.append_skipped(report)
+
+    def append_pass(self, report):
+        if hasattr(report, "wasxfail"):
+            self.xpass_count = self.xpass_count + 1
+            self.tests_taken = self.tests_taken + 1
+        else:
+            if report.nodeid not in self.passed_nodes:
+                if report.nodeid in self.failed_nodes:
+                    self.failed_nodes.remove(report.nodeid)
+                else:
+                    self.tests_taken = self.tests_taken + 1
+                self.pass_count = self.pass_count + 1
+                self.passed_nodes.append(report.nodeid)
+        if hasattr(report, 'rerun'):
+            if  report.rerun:
+                self.rerun_count = self.rerun_count + 1
+
+    def append_failure(self, report):
+        if report.when == "call":
+            if hasattr(report, "wasxfail"):
+                self.xpass_count = self.xpass_count + 1
+                self.tests_taken = self.tests_taken + 1
+            else:
+                if report.nodeid not in self.failed_nodes:
+                    if report.nodeid in self.passed_nodes:
+                        self.passed_nodes.remove(report.nodeid)
+                    else:
+                        self.tests_taken = self.tests_taken + 1
+                self.fail_count = self.fail_count + 1
+                self.failed_nodes.append(report.nodeid)
+        else:
+            self.append_error()
+
+    def append_error(self):
+        self.error_count = self.error_count + 1
+        self.tests_taken = self.tests_taken + 1
+
+    def append_skipped(self, report):
+        if hasattr(report, "wasxfail"):
+            if report.nodeid not in self.executed_nodes:
+                self.xfail_count = self.xfail_count + 1
+                self.tests_taken = self.tests_taken + 1
+                self.executed_nodes.append(report.nodeid)
+        else:
+            if report.nodeid not in self.executed_nodes:
+                self.skip_count = self.skip_count + 1
+                self.tests_taken = self.tests_taken + 1
+                self.executed_nodes.append(report.nodeid)
+
+    @pytest.hookimpl(tryfirst=True)
+    def pytest_report_teststatus(self, report):
+        """ Called after every test for test case status"""
+        if report.passed and report.when == "call":
+            if report.nodeid not in self.executed_nodes:
+                self.append_pass(report)
+                self.executed_nodes.append(report.nodeid)
+        elif hasattr(report, 'rerun'):
+            self.append_rerun(report)
+        elif report.failed:
+            if report.nodeid not in self.executed_nodes:
+                self.append_failure(report)
+                self.executed_nodes.append(report.nodeid)
+        elif report.skipped:
+            if report.nodeid not in self.executed_nodes:
+                self.append_skipped(report)
+                self.executed_nodes.append(report.nodeid)
+        if report.when in ("teardown"):
+            status = (self.tests_taken, self.tests_count, self.pass_count, self.fail_count,
+                      self.skip_count, self.xpass_count, self.xfail_count, self.error_count, self.rerun_count)
+            msg = "%d of %d completed, %d Pass, %d Fail, %d Skip, %d XPass, %d XFail, %d Error, %d ReRun" % (status)
+            self.write_sep("_", msg)
+
+    def pytest_collectreport(self, report):
+        TerminalReporter.pytest_collectreport(self, report)
+        if report.failed:
+            self.rewrite("")
+            self.print_failure(report)
+
+    def pytest_runtest_logreport(self, report):
+        TerminalReporter.pytest_runtest_logreport(self, report)
+        if (report.failed or report.outcome == "rerun") and not hasattr(report, 'wasxfail'):
+            if self.verbosity <= 0:
+                self._tw.line()
+            self.print_failure(report)
+
+    def summary_failures(self):
+        if self.config.option.display_summary:
+            super().summary_failures()
+
+    def summary_errors(self):
+        if self.config.option.display_summary:
+            super().summary_errors()
+
+    def print_failure(self, report):
+        if self.config.option.tbstyle != "no":
+            if self.config.option.tbstyle == "line":
+                line = self._getcrashline(report)
+                self.write_line(line)
+            else:
+                msg = self._getfailureheadline(report)
+                if not hasattr(report, 'when'):
+                    msg = "ERROR collecting " + msg
+                elif report.when == "setup":
+                    msg = "ERROR at setup of " + msg
+                elif report.when == "teardown":
+                    msg = "ERROR at teardown of " + msg
+                self.write_sep("_", msg)
+                if not self.config.getvalue("usepdb"):
+                    self._outrep_summary(report)
