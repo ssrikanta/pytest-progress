@@ -1,28 +1,13 @@
-[tool.setuptools.packages.find]
-where = ["pytest_progress"]
-
-[project.entry-points.pytest11]
-progress = "pytest_progress"
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra"
-testpaths = ["pytest_progress", "test_progress_report.py"]
-[tool.black]
-line-length = 88
-target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
-
-[tool.flake8]
-max-line-length = 88
-extend-ignore = ["E203", "W503"]
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytest-progress"
-version = "1.3.0"
+version = "1.4.0"
 description = "pytest plugin for instant test progress status"
 readme = "README.rst"
+requires-python = ">=3.8"
 authors = [
     { name = "Santosh Srikanta", email = "santosh.srikanta@gmail.com" }
 ]
@@ -32,6 +17,7 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Framework :: Pytest",
     "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: MacOS :: MacOS X",
@@ -43,16 +29,49 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12"
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13"
 ]
-dependencies = ["pytest"]
+dependencies = ["pytest>=6.0"]
 
 [project.urls]
 Homepage = "https://github.com/ssrikanta/pytest-progress"
-
-[tool.setuptools.packages.find]
-where = ["pytest_progress"]
+Repository = "https://github.com/ssrikanta/pytest-progress"
+Issues = "https://github.com/ssrikanta/pytest-progress/issues"
 
 [project.entry-points.pytest11]
 progress = "pytest_progress"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pytest_progress*"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -v"
+testpaths = ["tests", "."]
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312', 'py313']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  \.git
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "YTT", "S", "BLE", "C90"]
+ignore = ["E203", "W503"]
